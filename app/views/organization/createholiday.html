@@ -1,20 +1,22 @@
 <div>
     <ul class="breadcrumb">
-        <li><a href="#/organization">{{'link.admin.organisation' | translate}}</a> <span class="divider">/</span></li>
-        <li><a href="#/holidays">{{'label.manageholidays' | translate}}</a> <span class="divider">/</span></li>
-        <li class="active">{{'label.createholiday' | translate}}</li>
+        <li><a href="#/organization">{{'label.anchor.organization' | translate}}</a> <span class="divider">/</span></li>
+        <li><a href="#/holidays">{{'label.anchor.manageholidays' | translate}}</a> <span class="divider">/</span></li>
+        <li class="active">{{'label.anchor.createholiday' | translate}}</li>
     </ul>
 </div>
-<form class="form-horizontal well" ng-controller="AddHolController" ng-submit="submit()">
+<form name="addholidayform" novalidate="" class="form-horizontal well" ng-controller="AddHolController" rc-submit="submit()">
+    <api-validate></api-validate>
     <fieldset>
-        <legend>{{'label.createholiday' | translate}}</legend>
+        <legend>{{'label.heading.createholiday' | translate}}</legend>
         <table>
             <tr>
                 <td>
                     <div class="control-group">
-                        <label class="control-label">{{ 'label.holiday.name' | translate }}</label>
+                        <label class="control-label">{{ 'label.input.name' | translate }}<span class="required">*</span></label>
                         <div class="controls">
-                            <input type="text" ng-model="formData.name">
+                            <input id="name" ng-autofocus="true" type="text" name="name" ng-model="formData.name" required late-Validate/>
+                            <form-validate valattributeform="addholidayform" valattribute="name"/>
                         </div>
                     </div>
                 </td>
@@ -22,11 +24,12 @@
             <tr>
                 <td>
                     <div class="control-group">
-                        <label class="control-label">{{ 'label.holiday.applicableoffices' | translate }}</label>
+                        <label class="control-label">{{ 'label.input.applicableoffices' | translate }}</label>
                         <div class="controls">
-                            <select multiple ng-model="formData.officeId">
+                            <select id="officeId" multiple ng-model="formData.officeId" name="office" required>
                                 <option ng-repeat="office in offices" value="{{office.id}}">{{office.name}}</option>
                             </select>
+                            <form-validate valattributeform="addholidayform" valattribute="office"/>
                         </div>
                     </div>
                 </td>
@@ -36,14 +39,14 @@
                     <div class="control-group">
                         <div class="span4 pull-left">
                             <div>
-                            <label class="control-label">{{ 'label.holiday.fromdate' | translate }}</label>
+                            <label class="control-label">{{ 'label.input.fromdate' | translate }}<span class="required">*</span></label>
                             <div class="controls">
-                                <input type="text" datepicker-pop="dd MMMM yyyy" ng-model="date.first" is-open="opened" min="minDate" max="'2020-06-22'" date-disabled="disabled(date, mode)" required late-Validate />
+                                <input id="fromDate" class="date-disable" readonly type="text" datepicker-pop="dd MMMM yyyy" ng-model="date.first" is-open="opened" min="minDate" max="'2020-06-22'"/>
                             </div></div>
                             <div>
-                                <label class="control-label">{{ 'label.holiday.todate' | translate }}</label>
+                                <label class="control-label">{{ 'label.input.todate' | translate }}<span class="required">*</span></label>
                                 <div class="controls">
-                                    <input type="text" datepicker-pop="dd MMMM yyyy" ng-model="date.second" is-open="opened1" min="minDate" max="'2020-06-22'" date-disabled="disabled(date, mode)" required late-Validate />
+                                    <input id="toDate" class="date-disable" readonly type="text" datepicker-pop="dd MMMM yyyy" ng-model="date.second" is-open="opened1" min="minDate" max="'2020-06-22'"/>
                                 </div>
                             </div>
                         </div>
@@ -53,9 +56,9 @@
             <tr>
                 <td>
                     <div class="control-group">
-                        <label class="control-label">{{ 'label.holiday.repaymentsheduleto' | translate }}</label>
+                        <label class="control-label">{{ 'label.input.repaymentsheduleto' | translate }}<span class="required">*</span></label>
                         <div class="controls">
-                            <input type="text" datepicker-pop="dd MMMM yyyy" ng-model="date.third" is-open="opened2" min="minDate" max="'2020-06-22'" date-disabled="disabled(date, mode)" required late-Validate />
+                            <input id="repaymentsRescheduledTo" class="date-disable" readonly type="text" datepicker-pop="dd MMMM yyyy" ng-model="date.third" is-open="opened2" min="minDate" max="'2020-06-22'"/>
                         </div>
                     </div>
                 </td>
@@ -63,17 +66,17 @@
             <tr>
                 <td>
                     <div class="control-group">
-                        <label class="control-label">{{ 'label.holiday.desc' | translate }}</label>
+                        <label class="control-label">{{ 'label.input.description' | translate }}</label>
                         <div class="controls">
-                            <input type="text" data-ng-model="formData.description"/>
+                            <input id="" type="text" data-ng-model="formData.description"/>
                         </div>
                     </div>
                 </td>
             </tr>
         </table>
         <div class="offset3">
-            <a href="#/holidays"><button class="btn">Cancel</button></a>
-            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="#/holidays"><button class="btn">{{'label.button.cancel' | translate}}</button></a>
+            <button type="submit" class="btn btn-primary">{{'label.button.save' | translate}}</button>
         </div>
 
     </fieldset>

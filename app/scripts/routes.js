@@ -44,9 +44,6 @@
       .when('/admin/roles', {
         templateUrl: 'views/administration/roles.html'
       })
-      .when('/admin/role/:id/edit', {
-        templateUrl: 'views/administration/editpermissions.html'
-      })
       .when('/admin/addrole', {
         templateUrl: 'views/administration/addrole.html'
       })
@@ -57,10 +54,10 @@
         templateUrl: 'views/administration/users.html'
       })
       .when('/clients', {
-        templateUrl: 'views/clients/clients.html'  
+        templateUrl: 'views/clients/clients.html'
       })
       .when('/createclient', {
-        templateUrl: 'views/clients/createclient.html'  
+        templateUrl: 'views/clients/createclient.html'
       })
       .when('/editclient/:id', {
         templateUrl : 'views/clients/editclient.html'
@@ -69,7 +66,7 @@
         templateUrl: 'views/clients/viewclient.html'
       })
       .when('/client/:id/:action', {
-        templateUrl: 'views/clients/clientactions.html'  
+        templateUrl: 'views/clients/clientactions.html'
       })
       .when('/transferclient/:id', {
         templateUrl: 'views/clients/transferclient.html'
@@ -128,11 +125,14 @@
       .when('/addloandocument/:loanId', {
         templateUrl: 'views/loans/addloandocument.html'
       })
+      .when('/viewloantrxn/:accountId/trxnId/:id', {
+        templateUrl: 'views/loans/view_loan_transaction.html'
+      })
       .when('/organization', {
-        templateUrl: 'views/administration/organization.html'  
+        templateUrl: 'views/administration/organization.html'
       })
       .when('/system', {
-        templateUrl: 'views/administration/system.html'  
+        templateUrl: 'views/administration/system.html'
       })
       .when('/loanproducts', {
         templateUrl: 'views/products/loanproducts.html'
@@ -169,7 +169,7 @@
       })
       .when('/search/:query', {
         templateUrl: 'views/search/glresults.html'
-      })  
+      })
       .when('/viewloanproduct/:id', {
         templateUrl: 'views/products/viewloanproduct.html'
       })
@@ -326,12 +326,15 @@
       .when('/new_group_saving_application/:groupId', {
         templateUrl: 'views/savings/new_saving_account_application.html'
       })
+      .when('/new_group_saving_application/:groupId/:centerEntity', {
+        templateUrl: 'views/savings/new_saving_account_application.html'
+      })
       .when('/new_jlg_saving_application/:groupId/:clientId', {
         templateUrl: 'views/savings/new_saving_account_application.html'
       })
       .when('/viewsavingaccount/:id', {
         templateUrl: 'views/savings/view_saving_account_details.html'
-      }) 
+      })
       .when('/groups', {
         templateUrl: 'views/groups/groups.html'
       })
@@ -340,6 +343,9 @@
       })
       .when('/attachmeeting/:id/:entityType', {
         templateUrl: 'views/groups/attachmeeting.html'
+      })
+      .when('/editcalendar/:entityType/:groupOrCenterId/:calendarId', {
+        templateUrl: 'views/groups/editmeeting.html'
       })
       .when('/editsavingaccount/:id', {
         templateUrl: 'views/savings/edit_saving_account_application.html'
@@ -448,6 +454,15 @@
       })
       .when('/guarantor/:id', {
         templateUrl: 'views/loans/guarantor.html'
+      })
+      .when('/viewcheckerinbox/:id',{
+        templateUrl: 'views/system/viewcheckerinbox.html'
+      })
+      .when('/editguarantor/:id/:loanId',{
+        templateUrl: 'views/loans/editguarantor.html'
+      })
+      .when('/expertsearch',{
+        templateUrl: 'views/expertsearch.html'
       });
     $locationProvider.html5Mode(false);
   };

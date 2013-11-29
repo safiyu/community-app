@@ -5,7 +5,8 @@ define(['underscore'], function() {
       'bootswatch',
       'font-awesome.min',
       'app',
-      'nv.d3'
+      'nv.d3',
+      'style'
     ],
     less: [
       'mifosX'
@@ -14,6 +15,6 @@ define(['underscore'], function() {
   };
 
   require(_.reduce(_.keys(styles), function(list, pluginName) {
-    return list.concat(_.map(styles[pluginName], function(stylename) { return pluginName + "!styles/" + stylename; }));
+    return list.concat(_.map(styles[pluginName], function(stylename) { return pluginName + '!styles/' + stylename; }));
   }, []));
 });

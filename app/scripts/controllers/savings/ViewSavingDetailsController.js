@@ -1,8 +1,6 @@
 (function(module) {
   mifosX.controllers = _.extend(module, {
-    ViewSavingDetailsController: function(scope, routeParams, resourceFactory, location, route) {
-      scope.$broadcast('SavingAccountDataLoadingStartEvent');
-
+    ViewSavingDetailsController: function(scope, routeParams, resourceFactory, location, route,dateFilter) {
       scope.isDebit = function (savingsTransactionType) {
         return savingsTransactionType.withdrawal == true || savingsTransactionType.feeDeduction == true;
       };
@@ -81,8 +79,6 @@
           } else {
             scope.chargeTableShow = false;
           }
-          scope.$broadcast('SavingAccountDataLoadingCompleteEvent');
-
           if (data.status.value == "Submitted and pending approval") {
             scope.buttons = { singlebuttons : [{
                                 name:"button.modifyapplication",
@@ -138,13 +134,18 @@
                                 name:"button.postInterest"
                               },
                               {
-                                name:"button.transferFunds"
+                                  name:"button.addcharge"
                               },
                               {
                                  name:"button.close"
                               }]
                               
                             };
+            if (data.clientId) {
+                scope.buttons.options.push({
+                    name:"button.transferFunds"
+                });
+            }
           if(data.charges) {
             for (var i in scope.charges) {
               if(scope.charges[i].name == "Annual fee - INR") {
@@ -154,7 +155,7 @@
                 scope.annualChargeId = scope.charges[i].id;
               }
             }
-          }                            
+          }
         }
       });
 
@@ -195,7 +196,7 @@
       };
     }
   });
-  mifosX.ng.application.controller('ViewSavingDetailsController', ['$scope', '$routeParams', 'ResourceFactory', '$location', '$route', mifosX.controllers.ViewSavingDetailsController]).run(function($log) {
+  mifosX.ng.application.controller('ViewSavingDetailsController', ['$scope', '$routeParams', 'ResourceFactory', '$location', '$route','dateFilter', mifosX.controllers.ViewSavingDetailsController]).run(function($log) {
     $log.info("ViewSavingDetailsController initialized");
   });
 }(mifosX.controllers || {}));

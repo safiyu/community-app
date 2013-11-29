@@ -5,19 +5,22 @@
             scope.staffs = [];
             scope.data = {};
             scope.first = {};
+            scope.formData = {};
+            scope.restrictDate = new Date();
             scope.first.date = new Date();
             resourceFactory.centerTemplateResource.get(function(data) {
                 scope.offices = data.officeOptions;
                 scope.staffs = data.staffOptions;
                 scope.groups = data.groupMembersOptions;
+                scope.formData.officeId = data.officeOptions[0].id;
             });
 
-            scope.changeOffice =function(officeId) {
-                resourceFactory.centerTemplateResource.get({staffInSelectedOfficeOnly : false, officeId : officeId
+            scope.changeOffice =function() {
+                resourceFactory.centerTemplateResource.get({staffInSelectedOfficeOnly : false, officeId : scope.formData.officeId
                 }, function(data) {
                     scope.staffs = data.staffOptions;
                 });
-                resourceFactory.centerTemplateResource.get({officeId : officeId }, function(data) {
+                resourceFactory.centerTemplateResource.get({officeId : scope.formData.officeId }, function(data) {
                     scope.groups = data.groupMembersOptions;
                 });
             };

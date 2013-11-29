@@ -2,7 +2,8 @@ define(['underscore', 'mifosX'], function() {
   var components = {
     models: [
       'LoggedInUser',
-      'roleMap'
+      'roleMap',
+      'Langs'
     ],
     services: [
       'ResourceFactoryProvider',
@@ -31,6 +32,7 @@ define(['underscore', 'mifosX'], function() {
       'loanAccount/EditLoanChargeController',
       'loanAccount/NewJLGLoanAccAppController',
       'loanAccount/LoanDocumentController',
+      'loanAccount/ViewLoanTransactionController',
       'groups/AssignStaffController',
       'client/ClientController',
       'client/EditClientController',
@@ -59,7 +61,6 @@ define(['underscore', 'mifosX'], function() {
       'organization/RoleController',
       'organization/ViewRoleController',
       'organization/CreateRoleController',
-      'organization/EditPermissionsController',
       'organization/MakerCheckerController',
       'organization/OfficesController',
       'organization/ViewOfficeController',
@@ -116,6 +117,7 @@ define(['underscore', 'mifosX'], function() {
       'groups/GroupController',
       'groups/ViewGroupController',
       'groups/AttachMeetingController',
+      'groups/EditMeetingController',
       'savings/EditSavingAccountController',
       'savings/SavingAccountActionsController',
       'accounttransfers/ViewAccountTransferDetailsController',
@@ -150,22 +152,33 @@ define(['underscore', 'mifosX'], function() {
       'template/CreateTemplateController',
       'template/ViewTemplateController',
       'template/EditTemplateController',
-      'loanAccount/GuarantorController'
+      'loanAccount/GuarantorController',
+      'loanAccount/EditGuarantorController',
+      'main/ViewCheckerinboxController',
+      'main/ExpertSearchController'
     ],
     filters: [
       'StatusLookup',
-      'DateFormat'
+      'DateFormat',
+      'DayMonthFormat',
+      'YesOrNo',
+      'UrlToString'
     ],
     directives: [
       'DataTablesDirective',
-      'OverlayDirective',
       'DialogDirective',
       'PanelDirective',
       'BigPanelDirective',
       'OnBlurDirective',
       'LateValidateDirective',
       'TreeviewDirective',
-      'CkEditorDirective'
+      'CkEditorDirective',
+      'AutofocusDirective',
+      'SummaryDirective',
+      'FormValidateDirective',
+      'FormSubmitValidateDirective',
+      'ApiValidationDirective',
+      'ActivitiesDisplayPanelDirective'
     ]
   };
 

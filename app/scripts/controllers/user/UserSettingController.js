@@ -2,14 +2,7 @@
   mifosX.controllers = _.extend(module, {
     UserSettingController: function(scope, translate) {
       
-      
-
-      scope.langs   = [{"name" : "English" , "code" : "en"},
-                       {"name" : "French", "code":"fr"},
-                       {"name" : "Spanish", "code":"es"},
-                       {"name" : "Portuguese", "code":"pt"},
-                       {"name" : "Chinese", "code":"zh"},  
-                       ];
+      scope.langs = mifosX.models.Langs;
 
       scope.optlang = scope.langs[0];                       
 

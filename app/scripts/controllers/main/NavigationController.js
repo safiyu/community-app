@@ -17,6 +17,7 @@
         });
 
         scope.collapseOthers = function(){
+            scope.filterText = '';
             scope.isCollapsed = !scope.isCollapsed;
             if(scope.isCollapsed==false){
             scope.officerCollapsed = true;
@@ -26,6 +27,7 @@
             }
         };
         scope.collapseOfficerOthers = function(){
+            scope.filterText = '';
             scope.officerCollapsed = !scope.officerCollapsed;
             if(scope.officerCollapsed==false){
                 scope.isCollapsed = true;
@@ -35,6 +37,7 @@
             }
         };
         scope.collapseCenterOthers = function(){
+            scope.filterText = '';
             scope.centerCollapsed = !scope.centerCollapsed;
             if(scope.centerCollapsed==false){
                 scope.isCollapsed = true;
@@ -44,6 +47,7 @@
             }
         };
         scope.collapseGroupOthers = function(){
+            scope.filterText = '';
             scope.groupCollapsed = !scope.groupCollapsed;
             if(scope.groupCollapsed==false){
                 scope.isCollapsed = true;
@@ -53,6 +57,7 @@
             }
         };
         scope.collapseClientOthers = function(){
+            scope.filterText = '';
             scope.clientCollapsed = !scope.clientCollapsed;
             if(scope.clientCollapsed==false){
                 scope.isCollapsed = true;
@@ -65,11 +70,15 @@
         scope.officeSelected= function(officeId,office) {
             scope.officeName = office;
             scope.selectedOffice = officeId;
+            scope.filterText = '';
             scope.staffs = '';
             scope.staff = '';
             scope.group = '';
             scope.center = '';
             scope.client = '';
+            scope.centers='';
+            scope.clients= '';
+            scope.groups='';
             scope.groupsOrCenters = '';
             scope.isCollapsed = true;
             scope.officerCollapsed = false;
@@ -93,7 +102,8 @@
         scope.staffSelected= function(staffId,staffName) {
             scope.office = '';
             scope.group = '';
-            scope.client = ''
+            scope.client = '';
+            scope.filterText = '';
             scope.center = '';
             scope.centerName = '';
             scope.groupName = '';
@@ -103,6 +113,8 @@
             scope.centerCollapsed = false;
             scope.clientCollapsed = true;
             scope.groupCollapsed = true;
+            scope.clients= '';
+            scope.groups='';
             if(scope.office=='' && scope.group=='' && scope.center=='' && scope.client==''){
                 resourceFactory.employeeResource.get({staffId: staffId} , function(data) {
                     scope.staff = data;
@@ -119,8 +131,10 @@
             scope.staff = '';
             scope.client = '';
             scope.group='';
+            scope.filterText = '';
             scope.groupName = '';
             scope.clientName = '';
+            scope.clients= '';
             scope.centerName = centerName;
             scope.isCollapsed = true;
             scope.officerCollapsed = true;
@@ -132,10 +146,14 @@
                     scope.groups = data.groupMembers;
                     scope.center = data;
                 });
+                resourceFactory.centerAccountResource.get({centerId: centerId} , function(data) {
+                    scope.centerAccounts = data;
+                });
             }
         };
         scope.groupSelected= function(groupId,groupName) {
             scope.office = '';
+            scope.filterText = '';
             scope.staff = '';
             scope.center = '';
             scope.client = '';
@@ -151,10 +169,14 @@
                     scope.group = data;
                     scope.clients = data.clientMembers;
                 });
+                resourceFactory.groupAccountResource.get({groupId: groupId} , function(data) {
+                    scope.groupAccounts = data;
+                });
             }
         };
         scope.clientSelected= function(clientId,clientName) {
             scope.office = '';
+            scope.filterText = '';
             scope.staff = '';
             scope.center = '';
             scope.group = '';
@@ -167,6 +189,9 @@
             if(scope.office=='' && scope.center=='' && scope.staff=='' && scope.group==''){
                 resourceFactory.clientResource.get({clientId: clientId} , function(data) {
                     scope.client = data;
+                });
+                resourceFactory.clientAccountResource.get({clientId: clientId} , function(data) {
+                    scope.clientAccounts = data;
                 });
             }
         };

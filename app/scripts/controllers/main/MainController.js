@@ -1,10 +1,21 @@
 (function(module) {
   mifosX.controllers = _.extend(module, {
-    MainController: function(scope, location, sessionManager, translate) {
-      
-      scope.leftnav = false;
+    MainController: function(scope, location, sessionManager, translate,$rootScope,localStorageService) {
+        scope.activity = {};
+        scope.activityQueue = [];
+        if(localStorageService.get('Location')){
+            scope.activityQueue = localStorageService.get('Location');
+        }
+        scope.$watch(function() {
+            return location.path();
+        }, function() {
+            scope.activity= location.path();
+            scope.activityQueue.push(scope.activity);
+            localStorageService.add('Location',scope.activityQueue);
+        });
 
-      scope.$on("UserAuthenticationSuccessEvent", function(event, data) {
+        scope.leftnav = false;
+        scope.$on("UserAuthenticationSuccessEvent", function(event, data) {
         scope.currentSession = sessionManager.get(data);
         location.path('/home').replace();
       });
@@ -12,20 +23,17 @@
       scope.search = function(){
           location.path('/search/' + scope.search.query );
       };
+        scope.text =    '<span>Mifos X is designed by <a href="http://www.openmf.org/">Mifos Initiative</a>.'+
+                        '<a href="http://mifos.org/community"> A global community</a> working together for poorest, especially women, gain access to financial services.</span><br/>'+
+                        '<span>Sound interesting?<a href="http://mifos.org/community/news/how-you-can-get-involved"> Get involved!</a></span>';
 
-      scope.logout = function() {
+        scope.logout = function() {
         scope.currentSession = sessionManager.clear();
         location.path('/').replace();
       };
 
-      scope.langs   = [{"name" : "English" , "code" : "en"},
-                       {"name" : "Français", "code":"fr"},
-                       {"name" : "Español", "code":"es"},
-                       {"name" : "Português", "code":"pt"},
-                       {"name" : "中文", "code":"zh"},
-                       {"name" : "हिंदी", "code":"hn"} ,
-                       ];
-
+      scope.langs = mifosX.models.Langs;
+      
       scope.optlang = scope.langs[0];
 
       scope.isActive = function (route) {
@@ -83,6 +91,8 @@
     '$location',
     'SessionManager',
     '$translate',
+    '$rootScope',
+    'localStorageService',
     mifosX.controllers.MainController
   ]).run(function($log) {
     $log.info("MainController initialized");

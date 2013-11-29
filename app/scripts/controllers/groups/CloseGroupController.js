@@ -5,12 +5,14 @@
             scope.template = [];
             scope.first = {};
             scope.first.date = new Date();
+            scope.restrictDate = new Date();
             scope.formData = {};
             resourceFactory.groupResource.get({groupId: routeParams.id,associations:'all'} , function(data) {
                 scope.group = data;
             });
             resourceFactory.groupTemplateResource.get({command:'close'}, function(data){
                 scope.template = data;
+                scope.formData.closureReasonId = data.closureReasons[0].id;
             });
 
             scope.closeGroup = function(){

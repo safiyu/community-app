@@ -1,42 +1,36 @@
 (function(module) {
   mifosX.controllers = _.extend(module, {
-    ViewClientController: function(scope, routeParams , route, location, resourceFactory, http) {
+    ViewClientController: function(scope, routeParams , route, location, resourceFactory, http, $modal, API_VERSION) {
         scope.client = [];
         scope.identitydocuments = [];
         scope.buttons = [];
         scope.clientdocuments = [];
-
+        scope.staffData = {};
         resourceFactory.clientResource.get({clientId: routeParams.id} , function(data) {
             scope.client = data;
-
+            scope.staffData.staffId = data.staffId;
             if (data.imagePresent) {
               http({
                 method:'GET',
-                url: 'https://demo.openmf.org/mifosng-provider/api/v1/clients/'+routeParams.id+'/images'
+                url: API_VERSION + '/clients/'+routeParams.id+'/images'
               }).then(function(imageData) {
                 scope.image = imageData.data;
               });
             }
             if (data.status.value == "Pending") {
               scope.buttons = [{
-                                name:"button.edit",
+                                name:"label.button.edit",
                                 href:"#/editclient",
                                 icon :"icon-edit"
                               },
                               {
-                                name:"button.activate",
+                                name:"label.button.activate",
                                 href:"#/client",
                                 subhref:"activate",
                                 icon :"icon-ok-sign"
                               },
                               {
-                                name:"button.delete",
-                                href:"#/client",
-                                subhref:"delete",
-                                icon :"icon-warning-sign"
-                              },
-                              {
-                                name:"button.close",
+                                name:"label.button.close",
                                 href:"#/client",
                                 subhref:"close",
                                 icon :"icon-remove-circle"
@@ -46,27 +40,27 @@
 
             if (data.status.value == "Active") {
               scope.buttons = [{
-                                name:"button.edit",
+                                name:"label.button.edit",
                                 href:"#/editclient",
                                 icon :"icon-edit"
                               },
                               {
-                                name:"button.newloan",
+                                name:"label.button.newloan",
                                 href:"#/newclientloanaccount",
                                 icon :"icon-plus"
                               },
                               {
-                                name:"link.new.savings.application",
+                                name:"label.button.newsaving",
                                 href:"#/new_client_saving_application",
                                 icon :"icon-plus"
                               },
                               {
-                                name:"button.transferclient",
+                                name:"label.button.transferclient",
                                 href:"#/transferclient",
                                 icon :"icon-arrow-right"
                               },
                               {
-                                name:"button.close",
+                                name:"label.button.close",
                                 href:"#/client",
                                 subhref:"close",
                                 icon :"icon-remove-circle"
@@ -75,19 +69,19 @@
 
             if (data.status.value == "Transfer in progress") {
               scope.buttons = [{
-                                name:"button.accept.transfer",
+                                name:"label.button.accepttransfer",
                                 href:"#/client",
                                 subhref:"acceptclienttransfer",
                                 icon :"icon-check-sign"
                               },
                               {
-                                name:"button.reject.transfer",
+                                name:"label.button.rejecttransfer",
                                 href:"#/client",
                                 subhref:"rejecttransfer",
                                 icon :"icon-remove"
                               },
                               {
-                                name:"button.undo.transfer",
+                                name:"label.button.undotransfer",
                                 href:"#/client",
                                 subhref:"undotransfer",
                                 icon :"icon-undo"
@@ -96,7 +90,7 @@
 
             if (data.status.value == "Transfer on hold") {
               scope.buttons = [{
-                                name:"button.undo.transfer",
+                                name:"label.button.undotransfer",
                                 href:"#/client",
                                 subhref:"undotransfer",
                                 icon :"icon-undo"
@@ -105,15 +99,11 @@
 
             if (data.status.value == "Pending" || data.status.value == "Active"){
               if(data.staffId) {
+
+              }
+              else {
                 scope.buttons.push({
-                  name:"button.unassignstaff",
-                  href:"#/client",
-                  subhref:"unassignstaff?staffId="+data.staffId,
-                  icon :"icon-user"
-                });
-              } else {
-                scope.buttons.push({
-                  name:"button.assignstaff",
+                  name:"label.button.assignstaff",
                   href:"#/client",
                   subhref:"assignstaff",
                   icon :"icon-user"
@@ -125,7 +115,40 @@
             scope.client.ClientSummary = data[0];
           });
         });
-
+        scope.deleteClient = function () {
+            $modal.open({
+                templateUrl: 'deleteClient.html',
+                controller: ClientDeleteCtrl
+            });
+        };
+        scope.unassignStaffCenter = function () {
+            $modal.open({
+                templateUrl: 'clientunassignstaff.html',
+                controller: ClientUnassignCtrl
+            });
+        };
+        var ClientDeleteCtrl = function ($scope, $modalInstance) {
+            $scope.delete = function () {
+                resourceFactory.clientResource.delete({clientId: routeParams.id}, {}, function(data){
+                    location.path('/clients');
+                });
+                $modalInstance.close('delete');
+            };
+            $scope.cancel = function () {
+                $modalInstance.dismiss('cancel');
+            };
+        };
+        var ClientUnassignCtrl = function ($scope, $modalInstance) {
+            $scope.unassign = function () {
+                resourceFactory.clientResource.save({clientId: routeParams.id, command : 'unassignstaff'}, scope.staffData,function(data){
+                    route.reload();
+                });
+                $modalInstance.close('unassign');
+            };
+            $scope.cancel = function () {
+                $modalInstance.dismiss('cancel');
+            };
+        };
         resourceFactory.clientAccountResource.get({clientId: routeParams.id} , function(data) {
             scope.clientAccounts = data;
         });
@@ -159,7 +182,7 @@
           scope.selectedTemplate = templateId;
           http({
             method:'POST',
-            url: 'https://demo.openmf.org/mifosng-provider/api/v1/templates/'+templateId+'?clientId='+routeParams.id,
+            url: API_VERSION + '/templates/'+templateId+'?clientId='+routeParams.id,
             data: {}
           }).then(function(data) {
             scope.template = data.data;
@@ -345,7 +368,7 @@
         };
     }
   });
-  mifosX.ng.application.controller('ViewClientController', ['$scope', '$routeParams', '$route', '$location', 'ResourceFactory', '$http', mifosX.controllers.ViewClientController]).run(function($log) {
+  mifosX.ng.application.controller('ViewClientController', ['$scope', '$routeParams', '$route', '$location', 'ResourceFactory', '$http','$modal', 'API_VERSION', mifosX.controllers.ViewClientController]).run(function($log) {
     $log.info("ViewClientController initialized");
   });
 }(mifosX.controllers || {}));
