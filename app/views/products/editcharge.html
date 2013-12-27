@@ -46,7 +46,7 @@
                     </select>
                 </div>
             </div>
-            <div class="control-group" ng-hide="showdatefield">
+            <div class="control-group" ng-hide="showdatefield || flag">
                 <label class="control-label">{{'label.input.chargepaymentby' | translate}}<span class="required">*</span></label>
                 <div class="controls">
                     <select id="chargePaymentMode" ng-model="formData.chargePaymentMode" data-ng-options="chargepayment.id as chargepayment.value for chargepayment in template.chargePaymetModeOptions" value="{{chargepayment.id}}">
@@ -62,7 +62,7 @@
             <div class="control-group" ng-show="repeatEvery">
                 <label class="control-label" for="feeInterval">{{'label.input.repeatsevery' | translate}}<span class="required">*</span></label>
                 <div class="controls">
-                    <input class="input-small" id="feeInterval" name="feeInterval" type="text" ng-model="formData.feeInterval" ng-required="repeatEvery" late-Validate/>{{'label.months' | translate}}
+                    <input class="input-small" id="feeInterval" name="feeInterval" type="text" ng-model="formData.feeInterval" ng-required="repeatEvery" late-Validate/>{{'label.input.months' | translate}}
                     <form-validate valattributeform="editchargeform" valattribute="feeInterval"/>
                 </div>
             </div>
@@ -90,8 +90,8 @@
                 </div>
             </div>
             <div class="offset2 paddedleft80">
-                <a href="#/viewcharge/{{template.id}}" class="btn">{{'label.button.cancel' | translate}}</a>
-                <button type="submit" class="btn btn-primary">{{'label.button.save' | translate}}</button>
+                <a id="cancel" href="#/viewcharge/{{template.id}}" class="btn">{{'label.button.cancel' | translate}}</a>
+                <button id="save" type="submit" class="btn btn-primary">{{'label.button.save' | translate}}</button>
             </div>
         </fieldset>
     </form>

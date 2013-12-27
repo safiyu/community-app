@@ -13,7 +13,7 @@
       <div class="control-group" ng-show="showDateField">
         <label class="control-label" for="modelName">{{labelName | translate}}<span class="required">*</span></label>
         <div class="controls">
-          <input id="{{modelName}}" class="date-disable" readonly type="text" datepicker-pop="dd MMMM yyyy" ng-model="formData[modelName]" min="'2000-01-01'" max="restrictDate"/>
+          <input id="{{modelName}}" sort type="text" datepicker-pop="dd MMMM yyyy" ng-model="formData[modelName]" min="'2000-01-01'" max="restrictDate"/>
         </div>
       </div>
 
@@ -81,18 +81,41 @@
           <textarea id="note" rows="2" ng-model="formData.note"></textarea>
         </div>
       </div>
-      <div class="control-group" ng-show="showDelete">
+      <div class="control-group" ng-show="installmentchargeField">
+        <label class="control-label" for="note">{{ 'label.input.installment' | translate}}</label>
+        <div class="controls">
+          <select id="installmentNumber" ng-model="formData.installmentNumber"  ng-options="installmentCharge.installmentNumber as installmentCharge.installmentNumber for installmentCharge in installmentCharges" value="{{installmentCharge.installmentNumber}}"></select>
+        </div>
+      </div>
+      <div class="control-group" ng-show="paymentDatefield">
+        <label class="control-label" for="modelName">{{'label.input.paymentdate' | translate}}<span class="required">*</span></label>
+        <div class="controls">
+          <input id="{{modelName}}" type="text" sort datepicker-pop="dd MMMM yyyy" ng-model="formData.transactionDate" is-open="opened"/>
+        </div>
+      </div>
+      <div class="control-group" ng-show="showEditChargeAmount">
+        <label class="control-label">{{ 'label.input.amount' | translate}}<span class="required">*</span></label>
+        <div class="controls">
+          <input type="text" id="amount" ng-model="formData.amount">
+        </div>
+      </div>
+      <div class="control-group" ng-show="showEditChargeDueDate">
+        <label class="control-label" for="modelName">{{'label.input.dueforcollectedon' | translate}}<span class="required">*</span></label>
+        <div class="controls">
+          <input id="{{modelName}}" type="text" sort datepicker-pop="dd MMMM yyyy" ng-model="formData.dueDate" is-open="opened"/>
+        </div>
+      </div>
+      <div class="control-group" ng-show="showDelete || showwaiveforspecicficduedate">
           <label class="control-label">{{ 'label.areyousure' | translate}}</label>
       </div>
-      <div class="offset3" ng-show="showDelete">
-        <button type="reset" ng-click="submit()" class="btn">{{ 'label.button.confirm' | translate}}</button>
-        <button type="submit" ng-click="cancel()"class="btn btn-primary">{{ 'label.button.cancel' | translate}}</button>
+      <div class="offset3" ng-show="showDelete || showwaiveforspecicficduedate">
+        <button type="submit" ng-click="cancel()"class="btn">{{ 'label.button.cancel' | translate}}</button>
+        <button type="reset" ng-click="submit()" class="btn btn-primary">{{ 'label.button.confirm' | translate}}</button>
       </div>
-      <div class="offset3" ng-hide="showDelete">
-        <button type="reset" class="btn" ng-click="cancel()">{{ 'label.button.cancel' | translate}}</button>
-        <button type="submit" class="btn btn-primary">{{ 'label.button.save' | translate}}</button>
+      <div class="offset3" ng-hide="showDelete || showwaiveforspecicficduedate">
+        <button id="cancel" type="reset" class="btn" ng-click="cancel()">{{ 'label.button.cancel' | translate}}</button>
+        <button id="save" type="submit" class="btn btn-primary">{{ 'label.button.save' | translate}}</button>
       </div>
-
     </fieldset>
   </form>
 </div>

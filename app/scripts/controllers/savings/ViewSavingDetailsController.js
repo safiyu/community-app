@@ -157,6 +157,10 @@
             }
           }
         }
+          var annualdueDate = [];
+          annualdueDate = data.annualFee.feeOnMonthDay;
+          annualdueDate.push(2013);
+          scope.annualdueDate = new Date(annualdueDate);
       });
 
       resourceFactory.DataTablesResource.getAllDataTables({apptable: 'm_savings_account'} , function(data) {

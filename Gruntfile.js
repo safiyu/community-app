@@ -1,112 +1,58 @@
-// Generated on 2013-11-27 using generator-angular 0.6.0-rc.2
+
 'use strict';
 
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
+module.exports = function(grunt) {
 
-module.exports = function (grunt) {
-
-  // Load grunt tasks automatically
-  require('load-grunt-tasks')(grunt);
-
-  // Time how long tasks take. Can help when optimizing build times
-  require('time-grunt')(grunt);
-
-  // Define the configuration for all the tasks
+  // Project configuration.
   grunt.initConfig({
-
+    pkg: grunt.file.readJSON('package.json'),
     // Project settings
-    yeoman: {
+    mifosx: {
       // configurable paths
       app: require('./bower.json').appPath || 'app',
-      dist: 'dist'
-    },
-
-    // Watches files for changes and runs tasks based on the changed files
-    watch: {
-      js: {
-        files: ['{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js'],
-        tasks: ['newer:jshint:all']
-      },
-      jsTest: {
-        files: ['test/spec/{,*/}*.js'],
-        tasks: ['newer:jshint:test', 'karma']
-      },
-      // compass: {
-      //   files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-      //   tasks: ['compass:server', 'autoprefixer']
-      // },
-      // styles: {
-      //   files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
-      //   tasks: ['newer:copy:styles', 'autoprefixer']
-      // },
-      gruntfile: {
-        files: ['Gruntfile.js']
-      },
-      livereload: {
-        options: {
-          livereload: '<%= connect.options.livereload %>'
-        },
-        files: [
-          '<%= yeoman.app %>/{,*/}*.html',
-          '.tmp/styles/{,*/}*.css',
-          '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-        ]
-      }
-    },
-
-    // The actual grunt server settings
-    connect: {
-      options: {
-        port: 9000,
-        // Change this to '0.0.0.0' to access the server from outside.
-        hostname: 'localhost',
-        livereload: 35729
-      },
-      livereload: {
-        options: {
-          open: true,
-          base: [
-            '.tmp',
-            '<%= yeoman.app %>'
-          ]
-        }
-      },
-      test: {
-        options: {
-          port: 9001,
-          base: [
-            '.tmp',
-            'test',
-            '<%= yeoman.app %>'
-          ]
-        }
-      },
-      dist: {
-        options: {
-          base: '<%= yeoman.dist %>'
-        }
-      }
+      dist: 'dist',
+      target: 'community-app',
+      test: 'test'
     },
 
     // Make sure code styles are up to par and there are no obvious mistakes
     jshint: {
       options: {
-        jshintrc: '.jshintrc',
-        reporter: require('jshint-stylish')
+        node: true,
+        jshintrc: true,
+        reporter:'checkstyle',
+        reporterOutput:'jshint-log.xml'
       },
-      all: [
-        'Gruntfile.js',
-        '<%= yeoman.app %>/scripts/{,*/}*.js'
-      ],
-      test: {
-        options: {
-          jshintrc: 'test/.jshintrc'
-        },
-        src: ['test/spec/{,*/}*.js']
+      all: ['Gruntfile.js', '<%= mifosx.app %>/scripts/**/*.js']
+    },
+
+    karma: {
+      unit: {
+          configFile: 'karma.conf.js'
+      }
+    },
+
+    //uglify the js files
+    uglify: {
+      options: {
+        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+      },
+      prod: {
+        files: [{'<%= mifosx.dist %>/<%=mifosx.target%>/bower_components/angular-mocks/angular-mocks.min.js'
+          :['<%= mifosx.app %>/bower_components/angular-mocks/angular-mocks.js'],
+          '<%= mifosx.dist %>/<%=mifosx.target%>/bower_components/angular-webstorage/angular-webstorage.min.js'
+          :['<%= mifosx.app %>/bower_components/angular-webstorage/angular-webstorage.js'],
+          '<%= mifosx.dist %>/<%=mifosx.target%>/bower_components/ckeditor/ckeditor.min.js'
+          :['<%= mifosx.app %>/bower_components/ckeditor/ckeditor.js'],
+          '<%= mifosx.dist %>/<%=mifosx.target%>/bower_components/datatables/media/js/jquery.dataTables.min.js'
+          :['<%= mifosx.app %>/bower_components/datatables/media/js/jquery.dataTables.js'],
+          //'<%= mifosx.dist %>/<%=mifosx.target%>/bower_components/require-css/css.min.js'
+          //:['<%= mifosx.app %>/bower_components/require-css/css.js'],
+          //'<%= mifosx.dist %>/<%=mifosx.target%>/bower_components/requirejs/requirejs.min.js'
+          //:['<%= mifosx.app %>/bower_components/requirejs/require.js'],
+          '<%= mifosx.dist %>/<%=mifosx.target%>/bower_components/underscore/underscore.min.js'
+          :['<%= mifosx.app %>/bower_components/underscore/underscore.js']
+        }]
       }
     },
 
@@ -117,290 +63,224 @@ module.exports = function (grunt) {
           dot: true,
           src: [
             '.tmp',
-            '<%= yeoman.dist %>/*',
-            '!<%= yeoman.dist %>/.git*'
+            '<%= mifosx.dist %>/*',
+            '!<%= mifosx.dist %>/.git*'
           ]
         }]
-      },
-      server: '.tmp'
-    },
-
-    // Add vendor prefixed styles
-    autoprefixer: {
-      options: {
-        browsers: ['last 1 version']
-      },
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '.tmp/styles/',
-          src: '{,*/}*.css',
-          dest: '.tmp/styles/'
-        }]
-      }
-    },
-
-    
-
-    
-    // Compiles Sass to CSS and generates necessary files if requested
-    compass: {
-      options: {
-        sassDir: '<%= yeoman.app %>/styles',
-        cssDir: '.tmp/styles',
-        generatedImagesDir: '.tmp/images/generated',
-        imagesDir: '<%= yeoman.app %>/images',
-        javascriptsDir: '<%= yeoman.app %>/scripts',
-        fontsDir: '<%= yeoman.app %>/styles/fonts',
-        importPath: '<%= yeoman.app %>/bower_components',
-        httpImagesPath: '/images',
-        httpGeneratedImagesPath: '/images/generated',
-        httpFontsPath: '/styles/fonts',
-        relativeAssets: false,
-        assetCacheBuster: false
-      },
-      dist: {
-        options: {
-          generatedImagesDir: '<%= yeoman.dist %>/images/generated'
-        }
-      },
-      server: {
-        options: {
-          debugInfo: true
-        }
-      }
-    },
-
-    // Renames files for browser caching purposes
-    rev: {
-      dist: {
-        files: {
-          src: [
-            '<%= yeoman.dist %>/scripts/{,*/}*.js',
-            '<%= yeoman.dist %>/styles/{,*/}*.css',
-            '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-            '<%= yeoman.dist %>/styles/fonts/*'
-          ]
-        }
-      }
-    },
-
-    // Reads HTML for usemin blocks to enable smart builds that automatically
-    // concat, minify and revision files. Creates configurations in memory so
-    // additional tasks can operate on them
-    useminPrepare: {
-      html: '<%= yeoman.app %>/index.html',
-      options: {
-        dest: '<%= yeoman.dist %>'
-      }
-    },
-
-    // Performs rewrites based on rev and the useminPrepare configuration
-    usemin: {
-      html: ['<%= yeoman.dist %>/{,*/}*.html'],
-      css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
-      options: {
-        assetsDirs: ['<%= yeoman.dist %>']
-      }
-    },
-
-    // The following *-min tasks produce minified files in the dist folder
-    imagemin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.{png,jpg,jpeg,gif}',
-          dest: '<%= yeoman.dist %>/images'
-        }]
-      }
-    },
-    svgmin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.svg',
-          dest: '<%= yeoman.dist %>/images'
-        }]
-      }
-    },
-    htmlmin: {
-      dist: {
-        options: {
-          // Optional configurations that you can uncomment to use
-          // removeCommentsFromCDATA: true,
-          // collapseBooleanAttributes: true,
-          // removeAttributeQuotes: true,
-          // removeRedundantAttributes: true,
-          // useShortDoctype: true,
-          // removeEmptyAttributes: true,
-          // removeOptionalTags: true*/
-        },
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.app %>',
-          src: ['*.html', 'views/**/*.html'],
-          dest: '<%= yeoman.dist %>'
-        }]
-      }
-    },
-
-    // Allow the use of non-minsafe AngularJS files. Automatically makes it
-    // minsafe compatible so Uglify does not destroy the ng references
-    ngmin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '.tmp/concat/scripts',
-          src: '*.js',
-          dest: '.tmp/concat/scripts'
-        }]
-      }
-    },
-
-    // Replace Google CDN references
-    cdnify: {
-      dist: {
-        html: ['<%= yeoman.dist %>/*.html']
       }
     },
 
     // Copies remaining files to places other tasks can use
     copy: {
-      dist: {
+      prod: {
         files: [{
           expand: true,
           dot: true,
-          cwd: '<%= yeoman.app %>',
-          dest: '<%= yeoman.dist %>',
+          cwd: '<%= mifosx.app %>',
+          dest: '<%= mifosx.dist %>/<%=mifosx.target%>',
           src: [
             '*.{ico,png,txt}',
             '.htaccess',
-            'bower_components/**/*.js',
             'images/{,*/}*.{webp}',
             'fonts/*',
-            'scripts/**',
+            'images/*',
+            'scripts/*.js',
+            'scripts/services/*.js',
+            'scripts/modules/*.js',
+            '!scripts/routes.js',
+            '!scripts/initialTasks.js',
+            '!scripts/webstorage-configuration.js',
+            '!scripts/mifosXComponents.js',
+            '!scripts/mifosXComponents-build.js',
+            '!scripts/loader.js',
+            '!scripts/loader-build.js',
+            'styles/*.css',
+            '!scripts/mifosXStyles.js',
+            '!scripts/mifosXStyles-build.js',
             'global-translations/**',
-            'styles/**'
+            '*.html',
+            'views/**'
           ]
-        }, {
+        },
+        {
           expand: true,
-          cwd: '.tmp/images',
-          dest: '<%= yeoman.dist %>/images',
+          dot: true,
+          cwd: '<%= mifosx.test %>',
+          dest: '<%= mifosx.dist %>/<%=mifosx.target%>/test',
           src: [
-            'generated/*'
+            '**/**'
+          ]
+        },
+        {
+          '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/mifosXComponents.js':['<%= mifosx.app %>/scripts/mifosXComponents-build.js'],
+          '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/loader.js':['<%= mifosx.app %>/scripts/loader-build.js'],
+          '<%=mifosx.dist %>/<%=mifosx.target%>/scripts/mifosXStyles.js':['<%=mifosx.app%>/scripts/mifosXStyles-build.js']
+          //'<%= mifosx.dist %>/<%=mifosx.target%>':['<%= mifosx.test %>/**']
+        },
+        {
+          expand: true,
+          dot: true,
+          cwd: '<%= mifosx.app %>/bower_components',
+          dest: '<%= mifosx.dist %>/<%=mifosx.target%>/bower_components',
+          src: [
+            '**/*min.js', 'require-css/*.js', 'require-less/*.js', 
+            '!jasmine/**', '!requirejs/**/**', 'requirejs/require.js', '!underscore/**'
+          ]
+        }
+        ]
+      },
+      dev: {
+        files: [{
+          expand: true,
+          dot: true,
+          cwd: '<%= mifosx.app %>',
+          dest: '<%= mifosx.dist %>/<%=mifosx.target%>',
+          src: [
+            '*.{ico,png,txt}',
+            '.htaccess',
+            'images/{,*/}*.{webp}',
+            'fonts/*',
+            'scripts/**/*.js',
+            'global-translations/**',
+            'styles/**',
+            '*.html',
+            'views/**',
+            'images/**',
+            'bower_components/**'
+          ]
+        },
+        {
+          expand: true,
+          dot: true,
+          cwd: '<%= mifosx.test %>',
+          dest: '<%= mifosx.dist %>/<%=mifosx.target%>/test',
+          src: [
+            '**/**'
           ]
         }]
+      }
+    },
+
+      //hashing css & js
+      hashres: {
+          options: {
+              encoding: 'utf8',
+              fileNameFormat: '${name}.${hash}.${ext}',
+              renameFiles: true
+          },
+          css: {
+              options: {
+              },
+              dest: '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/mifosXStyles.js',
+              src: ['<%= mifosx.dist %>/<%=mifosx.target%>/styles/*.css','!<%= mifosx.dist %>/<%=mifosx.target%>/styles/font-awesome.min.css']
+          },
+          js: {
+              options: {
+              },
+              dest: ['<%= mifosx.dist %>/<%=mifosx.target%>/scripts/mifosXComponents.js'],
+              src:  [
+                      '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/directives/directives.js',
+                      '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/routes-initialTasks-webstorage-configuration.js',
+                      '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/controllers/controllers.js',
+                      '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/filters/filters.js',
+                      '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/models/models.js'
+              ]
+          },
+          ext : {
+              options: {},
+              dest: '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/loader.js',
+              src:   ['<%= mifosx.dist %>/<%=mifosx.target%>/scripts/mifosXComponents.js','<%= mifosx.dist %>/<%=mifosx.target%>/scripts/mifosXStyles.js']
+          },
+          loader : {
+              options: {},
+              src: '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/loader.js',
+              dest: '<%= mifosx.dist %>/<%=mifosx.target%>/index.html'
+          }
       },
-      styles: {
-        expand: true,
-        cwd: '<%= yeoman.app %>/styles',
-        dest: '.tmp/styles/',
-        src: '{,*/}*.css'
+
+    // rename files
+      replace: {
+          text: {
+              src: ['<%= mifosx.dist %>/<%=mifosx.target%>/scripts/mifosXComponents*','<%= mifosx.dist %>/<%=mifosx.target%>/scripts/loader*'],
+              overwrite: true,
+              replacements: [{
+                  from: '.js',
+                  to: ''
+              }]
+          }
+      },
+    
+    // concatinate JS files
+    /** FIXME: Address issues with this task**/
+    concat: {
+      options: {
+        separator: ';'
+      },
+      //
+      dist: {
+        files: {
+          '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/controllers/controllers.js': ['<%= mifosx.app %>/scripts/controllers/**/*.js'],
+          '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/directives/directives.js': ['<%= mifosx.app %>/scripts/directives/**/*.js'],
+          '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/models/models.js': ['<%= mifosx.app %>/scripts/models/**/*.js'],
+          //'<%= mifosx.dist %>/<%=mifosx.target%>/scripts/services/services.js': ['<%= mifosx.app %>/scripts/services/**/*.js'],
+          '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/filters/filters.js': ['<%= mifosx.app %>/scripts/filters/**/*.js'],
+          '<%= mifosx.dist %>/<%=mifosx.target%>/scripts/routes-initialTasks-webstorage-configuration.js':
+            ['<%= mifosx.app %>/scripts/routes.js', 
+            '<%= mifosx.app %>/scripts/initialTasks.js', 
+            '<%= mifosx.app %>/scripts/webstorage-configuration.js']
+        }
+      }
+    },
+    //FIXME: Address issues with requirejs task
+    requirejs: {
+      compile: {
+        options: {
+          baseUrl: '<%= mifosx.app %>',
+          mainConfigFile: '<%= mifosx.app %>/scripts/loader.js',
+          out: '<%= mifosx.dist %>/<%=mifosx.target%>/loader.js'
+        }
       }
     },
 
-    // Run some tasks in parallel to speed up the build process
-    concurrent: {
-      server: [
-        'compass:server',
-        'copy:styles'
-      ],
-      test: [
-        'compass',
-        'copy:styles'
-      ],
-      dist: [
-        'compass:dist',
-        'copy:styles',
-        'imagemin',
-        'svgmin',
-        'htmlmin'
-      ]
-    },
-
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/styles/main.css': [
-    //         '.tmp/styles/{,*/}*.css',
-    //         '<%= yeoman.app %>/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-    uglify: {
-       dist: {
-         files: {
-           '<%= yeoman.dist %>/bower_components/**/*.js': [
-             '<%= yeoman.dist %>/bower_components/**/*.js'
-           ]
-         }
-       }
-     },
-    // concat: {
-    //   dist: {}
-    // },
-
-    // Test settings
-    karma: {
-      unit: {
-        configFile: 'karma.conf.js',
-        singleRun: true
+    devcode: {
+      options: {
+        html: true,        // html files parsing?
+        js: false,          // javascript files parsing?
+        css: false,         // css files parsing?
+        clean: true,       // removes devcode comments even if code was not removed
+        block: {
+          open: 'devcode', // with this string we open a block of code
+          close: 'endcode' // with this string we close a block of code
+        },
+        dest: 'dist'       // default destination which overwrittes environment variable
+      },
+      dist : {             // settings for task used with 'devcode:dist'
+        options: {
+            source: 'dist/',
+            dest: 'dist/',
+            env: 'production'
+        }
       }
     }
   });
 
+  // Load the plugin that provides the "uglify" task.
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-requirejs');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-devcode');
+  grunt.loadNpmTasks('grunt-hashres');
+  grunt.loadNpmTasks('grunt-text-replace');
+  // Default task(s).
+      
+  grunt.registerTask('default', ['clean', 'jshint', 'copy:dev']);
+  grunt.registerTask('prod', ['clean', 'copy:prod', 'concat', 'uglify:prod', 'devcode:dist', 'hashres','replace']);
+  grunt.registerTask('dev', ['clean', 'copy:dev']);
+  grunt.registerTask('compile', ['jshint']);
+  grunt.registerTask('test', ['karma']);
 
-  grunt.registerTask('serve', function (target) {
-    if (target === 'dist') {
-      return grunt.task.run(['build', 'connect:dist:keepalive']);
-    }
-
-    grunt.task.run([
-      'clean:server',
-      'concurrent:server',
-      'autoprefixer',
-      'connect:livereload',
-      'watch'
-    ]);
-  });
-
-  grunt.registerTask('server', function () {
-    grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-    grunt.task.run(['serve']);
-  });
-
-  grunt.registerTask('test', [
-    'clean:server',
-    'concurrent:test',
-    'autoprefixer',
-    'connect:test',
-    'karma'
-  ]);
-
-  grunt.registerTask('build', [
-    'clean:dist',
-    'useminPrepare',
-    'concurrent:dist',
-    //'autoprefixer',
-    'concat',
-    'ngmin',
-    'copy:dist',
-    'cdnify',
-    'cssmin',
-    'uglify',
-    //'rev',
-    'usemin'
-  ]);
-
-  grunt.registerTask('default', [
-    'newer:jshint',
-    'test',
-    'build'
-  ]);
 };

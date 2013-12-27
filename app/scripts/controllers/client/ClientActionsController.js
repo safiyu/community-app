@@ -11,18 +11,27 @@
 
         switch (scope.action) {
           case "activate":
+            resourceFactory.clientResource.get({clientId: routeParams.id} , function(data) {
+                scope.client = data;
+                if (data.timeline.submittedOnDate) {
+                    scope.mindate = new Date(data.timeline.submittedOnDate);
+                }
+            });
             scope.labelName = 'label.input.activationdate';
             scope.breadcrumbName = 'label.anchor.activate';
             scope.modelName = 'activationDate';
-            scope.showDateField = true;
+            scope.showActivationDateField = true;
+            scope.showDateField = false;
           break;
           case "assignstaff":
             scope.breadcrumbName = 'label.anchor.assignstaff';
             scope.labelName = 'label.input.staff';
             scope.staffField = true;
             resourceFactory.clientResource.get({clientId: routeParams.id, template : 'true'},function(data){
-              scope.staffOptions = data.staffOptions;
-              scope.formData.staffId = scope.staffOptions[0].id;
+              if (data.staffOptions) {
+                  scope.staffOptions = data.staffOptions;
+                  scope.formData.staffId = scope.staffOptions[0].id;
+              }
             });
           break;
           case "close":

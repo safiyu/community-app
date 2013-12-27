@@ -11,6 +11,7 @@
 
         resourceFactory.savingProductResource.get({savingProductId :routeParams.id, template:'true'}, function(data) {
             scope.product = data;
+            scope.charges = data.charges;
             scope.assetAccountOptions = scope.product.accountingMappingOptions.assetAccountOptions || [];
             scope.liabilityAccountOptions = scope.product.accountingMappingOptions.liabilityAccountOptions || [];
             scope.incomeAccountOptions = scope.product.accountingMappingOptions.incomeAccountOptions || [];
@@ -57,17 +58,17 @@
                 scope.formData.interestOnSavingsAccountId = scope.expenseAccountOptions[0].id;
               }
             } else {
-              scope.formData.savingsReferenceAccountId = data.accountingMappings.savingsReferenceAccountId;
-              scope.formData.savingsControlAccountId = data.accountingMappings.savingsControlAccountId;
-              scope.formData.transfersInSuspenseAccountId = data.accountingMappings.transfersInSuspenseAccountId;
-              scope.formData.incomeFromFeeAccountId = data.accountingMappings.incomeFromFeeAccountId;
-              scope.formData.incomeFromPenaltyAccountId = data.accountingMappings.incomeFromPenaltyAccountId;
-              scope.formData.interestOnSavingsAccountId = data.accountingMappings.interestOnSavingsAccountId;
+              scope.formData.savingsReferenceAccountId = data.accountingMappings.savingsReferenceAccount.id;
+              scope.formData.savingsControlAccountId = data.accountingMappings.savingsControlAccount.id;
+              scope.formData.transfersInSuspenseAccountId = data.accountingMappings.transfersInSuspenseAccount.id;
+              scope.formData.incomeFromFeeAccountId = data.accountingMappings.incomeFromFeeAccount.id;
+              scope.formData.incomeFromPenaltyAccountId = data.accountingMappings.incomeFromPenaltyAccount.id;
+              scope.formData.interestOnSavingsAccountId = data.accountingMappings.interestOnSavingsAccount.id;
 
               _.each(scope.product.paymentChannelToFundSourceMappings, function(fundSource){  
                 scope.configureFundOptions.push({
-                  paymentTypeId : fundSource.paymentTypeId,
-                  fundSourceAccountId : fundSource.fundSourceAccountId,
+                  paymentTypeId : fundSource.paymentType.id,
+                  fundSourceAccountId : fundSource.fundSourceAccount.id,
                   paymentTypeOptions : scope.product.paymentTypeOptions,
                   assetAccountOptions : scope.assetAccountOptions
                 })
@@ -75,8 +76,8 @@
 
               _.each(scope.product.feeToIncomeAccountMappings, function(fees){  
                 scope.specificIncomeaccounts.push({
-                  chargeId : fees.chargeId,
-                  incomeAccountId : fees.incomeAccountId,
+                  chargeId : fees.charge.id,
+                  incomeAccountId : fees.incomeAccount.id,
                   chargeOptions : scope.product.chargeOptions,
                   incomeAccountOptions : scope.incomeAccountOptions
                 })
@@ -84,9 +85,9 @@
 
               _.each(scope.product.penaltyToIncomeAccountMappings, function(penalty){  
                 scope.penaltySpecificIncomeaccounts.push({
-                  chargeId : fees.chargeId,
-                  incomeAccountId : fees.incomeAccountId,
-                  chargeOptions : scope.product.chargeOptions,
+                  chargeId : penalty.charge.id,
+                  incomeAccountId : penalty.incomeAccount.id,
+                  penaltyOptions : scope.product.penaltyOptions,
                   incomeAccountOptions : scope.incomeAccountOptions
                 })
               });
@@ -147,11 +148,11 @@
         }
 
         scope.mapPenalty = function() {
-          if (scope.product.chargeOptions && scope.product.chargeOptions.length > 0 && scope.incomeAccountOptions && scope.incomeAccountOptions.length > 0) {
+          if (scope.product.penaltyOptions && scope.product.penaltyOptions.length > 0 && scope.incomeAccountOptions && scope.incomeAccountOptions.length > 0) {
             scope.penaltySpecificIncomeaccounts.push({
-              chargeId : scope.product.chargeOptions[0].id,
+              chargeId : scope.product.penaltyOptions[0].id,
               incomeAccountId : scope.incomeAccountOptions[0].id,
-              chargeOptions : scope.product.chargeOptions,
+              penaltyOptions : scope.product.penaltyOptions,
               incomeAccountOptions : scope.incomeAccountOptions
             });
           }
@@ -167,7 +168,11 @@
 
         scope.deletePenalty = function(index) {
             scope.penaltySpecificIncomeaccounts.splice(index,1);
-        } 
+        }
+
+        scope.cancel = function (){
+          location.path('/viewsavingproduct/'+routeParams.id);
+        };
 
         scope.submit = function() {
           scope.paymentChannelToFundSourceMappings = [];
@@ -201,7 +206,7 @@
               chargeId : scope.penaltySpecificIncomeaccounts[i].chargeId,
               incomeAccountId : scope.penaltySpecificIncomeaccounts[i].incomeAccountId,
             }
-            scope.penaltySpecificIncomeaccounts.push(temp);
+            scope.penaltyToIncomeAccountMappings.push(temp);
           }
 
           for (var i in scope.charges) {
@@ -213,7 +218,7 @@
 
           this.formData.paymentChannelToFundSourceMappings = scope.paymentChannelToFundSourceMappings;
           this.formData.feeToIncomeAccountMappings = scope.feeToIncomeAccountMappings;
-          this.formData.penaltyToIncomeAccountMappings = scope.penaltySpecificIncomeaccounts;
+          this.formData.penaltyToIncomeAccountMappings = scope.penaltyToIncomeAccountMappings;
           this.formData.charges = scope.chargesSelected;
           this.formData.locale = "en";
 

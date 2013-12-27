@@ -70,60 +70,12 @@
           case "unassignloanofficer":
             location.path('/loanaccount/' + accountId + '/unassignloanofficer');
           break;
+          case "loanscreenreport":
+            location.path('/loanscreenreport/' + accountId);
+          break;
         }
       };
 
-      scope.pay = function (id) {
-            $modal.open({
-                templateUrl: 'pay.html',
-                controller: PayCtrl,
-                resolve:{
-                    items: function () {
-                        return id;
-                    }
-                }
-            });
-      };
-
-      var PayCtrl = function ($scope, $modalInstance,items) {
-        $scope.approve = function () {
-            var reqDate = dateFilter(scope.date.payDate,'dd MMMM yyyy');
-            var payData = {};
-            payData.transactionDate = reqDate;
-            payData.locale = 'en';
-            payData.dateFormat = 'dd MMMM yyyy';
-            resourceFactory.loanChargesResource.save({loanId: routeParams.id,chargeId:items,command:'pay'}, payData, function(data) {
-                route.reload();
-            });
-            $modalInstance.close('pay');
-        };
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-      };
-      scope.waive = function (id) {
-        $modal.open({
-            templateUrl: 'waive.html',
-            controller: WaiveCtrl,
-            resolve:{
-                id: function () {
-                    return id;
-                }
-            }
-        });
-      };
-
-      var WaiveCtrl = function ($scope, $modalInstance,id) {
-            $scope.waived = function () {
-                resourceFactory.loanChargesResource.save({loanId: routeParams.id,chargeId:id,command:'waive'}, {}, function(data) {
-                    route.reload();
-                });
-                $modalInstance.close('waived');
-            };
-            $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
-            };
-      };
         scope.delCharge = function (id) {
             $modal.open({
                 templateUrl: 'delcharge.html',
@@ -153,7 +105,7 @@
           scope.guarantorDetails = data.guarantors;
           scope.status = data.status.value;
           scope.chargeAction = data.status.value == "Submitted and pending approval" ? true : false;
-
+          scope.decimals = data.currency.decimalPlaces;
           if(scope.loandetails.charges) {
             scope.charges = scope.loandetails.charges;
               for(var i in scope.charges){
@@ -184,10 +136,6 @@
                                 icon :"icon-plus-sign"
                               },
                               {
-                                name:"button.addcollateral",
-                                icon :"icon-link"
-                              },
-                              {
                                 name:"button.approve",
                                 icon :"icon-ok"
                               },
@@ -211,7 +159,13 @@
                                 name:"button.delete"
                               },
                               {
+                                  name:"button.addcollateral"
+                              },
+                              {
                                 name:"button.guarantor"
+                              },
+                              {
+                                name:"button.loanscreenreport"
                               }]
                               
                             };
@@ -237,6 +191,9 @@
                               },
                               {
                                name:"button.guarantor"
+                              },
+                              {
+                                name:"button.loanscreenreport"
                               }]
                               
                             };
@@ -246,10 +203,6 @@
             scope.buttons = { singlebuttons : [{
                                 name:"button.addloancharge",
                                 icon :"icon-plus-sign"
-                              },
-                              {
-                                name:"button.assignloanofficer",
-                                icon :"icon-user"
                               },
                               {
                                 name:"button.makerepayment",
@@ -272,9 +225,20 @@
                               },
                               {
                                  name:"button.close"
+                              },
+                              {
+                                name:"button.loanscreenreport"
                               }]
                               
                             };
+              //loan officer not assigned to loan, below logic 
+              //helps to display otherwise not                
+              if (!data.loanOfficerName) {
+                  scope.buttons.singlebuttons.splice(1,0,{
+                                name:"button.assignloanofficer",
+                                icon :"icon-user"
+                              });
+              }
         }
         if (data.status.value == "Overpaid") {
             scope.buttons = { singlebuttons : [{
@@ -314,27 +278,17 @@
             $modalInstance.dismiss('cancel');
         };
       };
-      scope.getLoanTemplateDocuments = function() {
-        resourceFactory.templateResource.get({entityId : 1, typeId : 0}, function(data) {
-          scope.loanTemplateData = data;
-        })
-      }
-
-      scope.getLoanTemplate = function(templateId) {
-        scope.selectedTemplate = templateId;
-        http({
-          method:'POST',
-          url: API_VERSION + '/templates/'+templateId+'?loanId='+routeParams.id,
-          data: {}
-        }).then(function(data) {
-          scope.template = data.data;
-        });
-      }
 
       scope.getLoanDocuments = function (){
         resourceFactory.LoanDocumentResource.getLoanDocuments({loanId: routeParams.id}, function(data) {
+            for(var i in data){
+                var loandocs = {};
+                loandocs = API_VERSION + '/loans/' + data[i].parentEntityId + '/documents/' + data[i].id + '/attachment?tenantIdentifier=default';
+                data[i].docUrl = loandocs;
+            }
             scope.loandocuments = data;
         });
+
       };
 
       resourceFactory.DataTablesResource.getAllDataTables({apptable: 'm_loan'} , function(data) {

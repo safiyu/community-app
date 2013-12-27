@@ -33,6 +33,7 @@ define(['underscore', 'mifosX'], function() {
       'loanAccount/NewJLGLoanAccAppController',
       'loanAccount/LoanDocumentController',
       'loanAccount/ViewLoanTransactionController',
+      'loanAccount/LoanScreenReportController',
       'groups/AssignStaffController',
       'client/ClientController',
       'client/EditClientController',
@@ -43,6 +44,9 @@ define(['underscore', 'mifosX'], function() {
       'client/ClientDocumentController',
       'client/ClientIdentifierController',
       'client/UploadClientIdentifierDocumentController',
+      'client/ClientScreenReportController',
+      'client/ClientClosedLoansAccountController',
+      'client/ClientClosedSavingsAccountController',
       'product/LoanProductController',
       'product/CreateLoanProductController',
       'product/CreateSavingProductController',
@@ -108,6 +112,7 @@ define(['underscore', 'mifosX'], function() {
       'system/ViewSchedulerJobHistoryController',
       'organization/HolController',
       'organization/ViewHolController',
+      'organization/EditHolidayController',
       'organization/AddHolController',
       'reports/ViewReportsController',
       'reports/RunReportsController',
@@ -118,6 +123,8 @@ define(['underscore', 'mifosX'], function() {
       'groups/ViewGroupController',
       'groups/AttachMeetingController',
       'groups/EditMeetingController',
+      'groups/GroupClosedLoansAccountController',
+      'groups/GroupClosedSavingsAccountController',
       'savings/EditSavingAccountController',
       'savings/SavingAccountActionsController',
       'accounttransfers/ViewAccountTransferDetailsController',
@@ -155,17 +162,20 @@ define(['underscore', 'mifosX'], function() {
       'loanAccount/GuarantorController',
       'loanAccount/EditGuarantorController',
       'main/ViewCheckerinboxController',
-      'main/ExpertSearchController'
+      'main/ExpertSearchController',
+      'main/ProfileController',
+      'main/ViewMakerCheckerTaskController'
     ],
     filters: [
       'StatusLookup',
       'DateFormat',
       'DayMonthFormat',
       'YesOrNo',
-      'UrlToString'
+      'UrlToString',
+      'sort',
+      'DotRemove',
     ],
     directives: [
-      'DataTablesDirective',
       'DialogDirective',
       'PanelDirective',
       'BigPanelDirective',
@@ -178,7 +188,9 @@ define(['underscore', 'mifosX'], function() {
       'FormValidateDirective',
       'FormSubmitValidateDirective',
       'ApiValidationDirective',
-      'ActivitiesDisplayPanelDirective'
+      'ActivitiesDisplayPanelDirective',
+      'ScrollbarTopDirective',
+      'ChosenComboboxDirective'
     ]
   };
 

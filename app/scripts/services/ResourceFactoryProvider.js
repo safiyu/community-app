@@ -2,14 +2,20 @@
   mifosX.services = _.extend(module, {
     ResourceFactoryProvider: function() {
       var baseUrl = "" , apiVer = "/mifosng-provider/api/v1";
-      this.setBaseUrl = function(url) {baseUrl = url;};
-      this.$get = ['$resource', function(resource) {
+      this.setBaseUrl = function(url) {
+          baseUrl = url;
+      };
+
+      this.$get = ['$resource','$rootScope', function(resource,$rootScope) {
         var defineResource = function(url, paramDefaults, actions) {
+            var tempUrl = baseUrl;
+            $rootScope.hostUrl = tempUrl.replace(":8443","");
           return resource(baseUrl + url, paramDefaults, actions);
         };
         return {
-          userResource: defineResource(apiVer + "/users/:userId", {}, {
-            getAllUsers: {method: 'GET', params: {fields: "id,firstname,lastname,username,officeName"}, isArray: true}
+          userResource: defineResource(apiVer + "/users/:userId", {userId:'@userId'}, {
+            getAllUsers: {method: 'GET', params: {fields: "id,firstname,lastname,username,officeName"}, isArray: true},
+            getUser: {method:'GET',params:{}}
           }),
           roleResource: defineResource(apiVer + "/roles/:roleId", {}, {
             getAllRoles: {method: 'GET', params: {}, isArray: true}
@@ -128,7 +134,8 @@
               get: {method: 'GET', params: {}}
           }),
           LoanAccountResource: defineResource(apiVer + "/loans/:loanId/:resourceType/:chargeId", {loanId:'@loanId', resourceType:'@resourceType', chargeId:'@chargeId'}, {
-            getLoanAccountDetails: {method: 'GET', params: {}}
+            getLoanAccountDetails: {method: 'GET', params: {}},
+            update: {method: 'PUT'}
           }),
           LoanDocumentResource: defineResource(apiVer + "/loans/:loanId/documents/:documentId", {loanId:'@loanId',documentId:'@documentId'}, {
             getLoanDocuments: {method: 'GET', params: {} , isArray: true}
@@ -156,7 +163,9 @@
                     }
           }),
           fundsResource: defineResource(apiVer + "/funds/:fundId", {fundId:'@fundId'}, {
-            getAllFunds: {method: 'GET', params: {}, isArray: true}
+            getAllFunds: {method: 'GET', params: {}, isArray: true},
+            getFund: {method:'GET', params: {}},
+            update: {method: 'PUT', params: {}}
           }),
           accountingRulesResource: defineResource(apiVer + "/accountingrules/:accountingRuleId", {accountingRuleId:'@accountingRuleId'}, {
             getAllRules: {method: 'GET', params: {associations : 'all'}, isArray: true},
@@ -195,7 +204,8 @@
               getAllHols: {method: 'GET', params: {}, isArray: true}
           }),
           holValueResource: defineResource(apiVer + "/holidays/:holId", {holId:'@holId'}, {
-              getholvalues: {method: 'GET', params: {}}
+              getholvalues: {method: 'GET', params: {}},
+              update: { method: 'PUT', params: {}, isArray:true }
           }),
           savingsTemplateResource: defineResource(apiVer + "/savingsaccounts/template", {}, {
               get: {method: 'GET', params: {}}

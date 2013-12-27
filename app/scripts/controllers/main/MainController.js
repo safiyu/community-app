@@ -1,6 +1,6 @@
 (function(module) {
   mifosX.controllers = _.extend(module, {
-    MainController: function(scope, location, sessionManager, translate,$rootScope,localStorageService) {
+    MainController: function(scope, location, sessionManager, translate,$rootScope,localStorageService,keyboardManager) {
         scope.activity = {};
         scope.activityQueue = [];
         if(localStorageService.get('Location')){
@@ -23,9 +23,9 @@
       scope.search = function(){
           location.path('/search/' + scope.search.query );
       };
-        scope.text =    '<span>Mifos X is designed by <a href="http://www.openmf.org/">Mifos Initiative</a>.'+
-                        '<a href="http://mifos.org/community"> A global community</a> working together for poorest, especially women, gain access to financial services.</span><br/>'+
-                        '<span>Sound interesting?<a href="http://mifos.org/community/news/how-you-can-get-involved"> Get involved!</a></span>';
+        scope.text =    '<span>Mifos X is designed by the <a href="http://www.openmf.org/">Mifos Initiative</a>.'+
+                        '<a href="http://mifos.org/community"> A global community </a> thats aims to speed the elimination of poverty by enabling Organizations to more effectively and efficiently deliver responsible financial services to the world’s poor and unbanked </span><br/>'+
+                        '<span>Sounds interesting?<a href="http://mifos.org/community/news/how-you-can-get-involved"> Get involved!</a></span>';
 
         scope.logout = function() {
         scope.currentSession = sessionManager.clear();
@@ -33,8 +33,18 @@
       };
 
       scope.langs = mifosX.models.Langs;
-      
-      scope.optlang = scope.langs[0];
+        if(localStorageService.get('Language')){
+            var temp=localStorageService.get('Language');
+            for(var i in mifosX.models.Langs){
+                if(mifosX.models.Langs[i].code == temp.code){
+                    scope.optlang = mifosX.models.Langs[i];
+                }
+            }
+        } else{
+            scope.optlang = scope.langs[0];
+        }
+        translate.uses(scope.optlang.code);
+
 
       scope.isActive = function (route) {
           if(route == 'clients'){
@@ -76,9 +86,66 @@
           }
       };
 
+        keyboardManager.bind('ctrl+shift+n', function() {
+            location.path('/nav/offices');
+        });
+        keyboardManager.bind('ctrl+shift+i', function() {
+            location.path('/tasks');
+        });
+        keyboardManager.bind('ctrl+shift+o', function() {
+            location.path('/entercollectionsheet');
+        });
+        keyboardManager.bind('ctrl+shift+c', function() {
+            location.path('/createclient');
+        });
+        keyboardManager.bind('ctrl+shift+g', function() {
+            location.path('/creategroup');
+        });
+        keyboardManager.bind('ctrl+shift+q', function() {
+            location.path('/createcenter');
+        });
+        keyboardManager.bind('ctrl+shift+f', function() {
+            location.path('/freqposting');
+        });
+        keyboardManager.bind('ctrl+shift+e', function() {
+            location.path('/accounts_closure');
+        });
+        keyboardManager.bind('ctrl+shift+j', function() {
+            location.path('/journalentry');
+        });
+        keyboardManager.bind('ctrl+shift+a', function() {
+            location.path('/accounting');
+        });
+        keyboardManager.bind('ctrl+shift+r', function() {
+            location.path('/reports/all');
+        });
+        keyboardManager.bind('ctrl+s', function() {
+            document.getElementById('save').click();
+        });
+        keyboardManager.bind('ctrl+r', function() {
+            document.getElementById('run').click();
+        });
+        keyboardManager.bind('ctrl+shift+x', function() {
+            document.getElementById('cancel').click();
+        });
+        keyboardManager.bind('ctrl+shift+l', function() {
+            document.getElementById('logout').click();
+        });
+        keyboardManager.bind('alt+x', function() {
+            document.getElementById('search').focus();
+        });
+        keyboardManager.bind('ctrl+shift+h', function() {
+            document.getElementById('help').click();
+        });
+        keyboardManager.bind('ctrl+n', function() {
+            document.getElementById('next').click();
+        });
+        keyboardManager.bind('ctrl+p', function() {
+            document.getElementById('prev').click();
+        });
       scope.changeLang = function (lang) {
           translate.uses(lang.code);
-          scope.optlang = lang;
+          localStorageService.add('Language',lang);
       };
 
       sessionManager.restore(function(session) {
@@ -93,6 +160,7 @@
     '$translate',
     '$rootScope',
     'localStorageService',
+    'keyboardManager',
     mifosX.controllers.MainController
   ]).run(function($log) {
     $log.info("MainController initialized");

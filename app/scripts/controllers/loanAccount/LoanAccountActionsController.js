@@ -114,8 +114,8 @@
           case "modifytransaction":
             resourceFactory.loanTrxnsResource.get({loanId:scope.accountId, transactionId:routeParams.transactionId, template:'true'},
               function (data) {
-              scope.title = 'label.edit.loan.account.transaction';
-              scope.labelName = 'label.loan.account.transactionDate';
+              scope.title = 'label.heading.editloanaccounttransaction';
+              scope.labelName = 'label.input.transactiondate';
               scope.modelName = 'transactionDate';
               scope.paymentTypes=data.paymentTypeOptions || [];
               scope.formData.transactionAmount = data.amount;
@@ -142,6 +142,55 @@
             scope.showNoteField = false;
             scope.showDateField = false;
           break;
+          case "waivecharge":
+              resourceFactory.LoanAccountResource.get({loanId : routeParams.id, resourceType : 'charges', chargeId : routeParams.chargeId}, function(data){
+                  if (data.chargeTimeType.value !== "Specified due date" && data.installmentChargeData) {
+                      scope.installmentCharges = data.installmentChargeData;
+                      scope.formData.installmentNumber = data.installmentChargeData[0].installmentNumber;
+                      scope.installmentchargeField = true;
+                  } else {
+                    scope.installmentchargeField = false;
+                    scope.showwaiveforspecicficduedate = true;
+                  }
+              });
+              
+              scope.title = 'label.heading.waiveloancharge';
+              scope.labelName = 'label.input.installment';
+              scope.showNoteField = false;
+              scope.showDateField = false;
+          break;
+          case "paycharge":
+              resourceFactory.LoanAccountResource.get({loanId : routeParams.id, resourceType : 'charges', chargeId : routeParams.chargeId, command : 'pay'}, function(data){
+                  if (data.dueDate) {
+                      scope.formData.transactionDate = new Date(data.dueDate);
+                  }
+                  if (data.chargeTimeType.value === "Instalment Fee" && data.installmentChargeData) {
+                      scope.installmentCharges = data.installmentChargeData;
+                      scope.formData.installmentNumber = data.installmentChargeData[0].installmentNumber;
+                      scope.installmentchargeField = true;
+                  }
+              });
+              scope.title = 'label.heading.payloancharge';
+              scope.showNoteField = false;
+              scope.showDateField = false;
+              scope.paymentDatefield = true;
+          break;
+          case "editcharge":
+              resourceFactory.LoanAccountResource.get({loanId : routeParams.id, resourceType : 'charges', chargeId : routeParams.chargeId}, function(data){
+                  if (data.amountOrPercentage) {
+                      scope.showEditChargeAmount = true;
+                      scope.formData.amount = data.amountOrPercentage;
+                      if (data.dueDate) { 
+                          scope.formData.dueDate = new Date(data.dueDate);
+                          scope.showEditChargeDueDate = true;
+                      }
+                  }
+
+              });
+              scope.title = 'label.heading.editcharge';
+              scope.showNoteField = false;
+              scope.showDateField = false;
+          break;
         }
 
         scope.cancel = function() {
@@ -153,7 +202,7 @@
           if (this.formData[scope.modelName]) {
             this.formData[scope.modelName] = dateFilter(this.formData[scope.modelName],'dd MMMM yyyy');
           }
-          if (scope.action != "undoapproval" && scope.action != "undodisbursal") {
+          if (scope.action != "undoapproval" && scope.action != "undodisbursal" || scope.action === "paycharge") {
             this.formData.locale = 'en';
             this.formData.dateFormat = 'dd MMMM yyyy';
           }
@@ -169,6 +218,20 @@
           } else if(scope.action == "deleteloancharge") {
               resourceFactory.LoanAccountResource.delete({loanId : routeParams.id, resourceType : 'charges', chargeId : routeParams.chargeId}, this.formData, function(data) {
                  location.path('/viewloanaccount/' + data.loanId);
+              });
+          }else if (scope.action === "waivecharge") {
+              resourceFactory.LoanAccountResource.save({loanId : routeParams.id, resourceType : 'charges', chargeId : routeParams.chargeId, 'command' :'waive'}, this.formData, function(data){
+                  location.path('/viewloanaccount/' + data.loanId);
+              });
+          }else if (scope.action === "paycharge") {
+              this.formData.transactionDate = dateFilter(this.formData.transactionDate,'dd MMMM yyyy');
+              resourceFactory.LoanAccountResource.save({loanId : routeParams.id, resourceType : 'charges', chargeId : routeParams.chargeId, 'command' :'pay'}, this.formData, function(data){
+                  location.path('/viewloanaccount/' + data.loanId);
+              });
+          }else if (scope.action === "editcharge") {
+              this.formData.dueDate = dateFilter(this.formData.dueDate,'dd MMMM yyyy');
+              resourceFactory.LoanAccountResource.update({loanId : routeParams.id, resourceType : 'charges', chargeId : routeParams.chargeId}, this.formData, function(data){
+                  location.path('/viewloanaccount/' + data.loanId);
               });
           } else {
             params.loanId=scope.accountId;

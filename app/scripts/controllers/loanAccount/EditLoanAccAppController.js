@@ -100,6 +100,11 @@
                 scope.formData.syncRepaymentsWithMeeting = true;
               }
 
+              if (scope.loanaccountinfo.linkedAccount) {
+                  scope.formData.linkAccountId = scope.loanaccountinfo.linkedAccount.id;
+              }
+            
+
             }
             
             scope.addCharge = function() {
@@ -189,8 +194,15 @@
                 if (scope.charges.length > 0) {
                   scope.formData.charges = [];
                   for (var i in scope.charges) {
-                    scope.formData.charges.push({ chargeId:scope.charges[i].chargeId, amount:scope.charges[i].amountOrPercentage, dueDate:dateFilter(scope.charges[i].dueDate,'dd MMMM yyyy') });
+                    scope.formData.charges.push({id : scope.charges[i].id, chargeId:scope.charges[i].chargeId, amount:scope.charges[i].amount, dueDate:dateFilter(scope.charges[i].dueDate,'dd MMMM yyyy') });
                   }
+                }
+
+                //if there is no charge selected 
+                //for corresponding loan, then empty charge object
+                //sent to the server side.
+                if (!this.formData.charges) {
+                  this.formData.charges = {};
                 }
 
                 if (scope.collaterals.length > 0) {

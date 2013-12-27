@@ -1,6 +1,6 @@
 (function(module) {
   mifosX.controllers = _.extend(module, {
-    UploadClientIdentifierDocumentController: function(scope, location, http, routeParams, API_VERSION) {
+    UploadClientIdentifierDocumentController: function(scope, location, http, routeParams, API_VERSION,$upload,$rootScope) {
       scope.clientId = routeParams.clientId;
       scope.resourceId = routeParams.resourceId;
       scope.onFileSelect = function($files) {
@@ -8,8 +8,8 @@
       };
 
       scope.submit = function () {
-        http.uploadFile({
-          url: API_VERSION + '/client_identifiers/'+scope.resourceId+'/documents', 
+        $upload.upload({
+          url: $rootScope.hostUrl + API_VERSION + '/client_identifiers/'+scope.resourceId+'/documents',
           data: scope.formData,
           file: scope.file
         }).then(function(data) {
@@ -22,7 +22,7 @@
       };
     }
   });
-  mifosX.ng.application.controller('UploadClientIdentifierDocumentController', ['$scope', '$location', '$http', '$routeParams', 'API_VERSION', mifosX.controllers.UploadClientIdentifierDocumentController]).run(function($log) {
+  mifosX.ng.application.controller('UploadClientIdentifierDocumentController', ['$scope', '$location', '$http', '$routeParams', 'API_VERSION','$upload','$rootScope', mifosX.controllers.UploadClientIdentifierDocumentController]).run(function($log) {
     $log.info("UploadClientIdentifierDocumentController initialized"); 
   });
 }(mifosX.controllers || {}));

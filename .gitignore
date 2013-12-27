@@ -1,5 +1,5 @@
 .idea
-.gradle
+.gradle/
 build
 lib-cov
 lib
@@ -26,3 +26,4 @@ dist
 *.iml
 atlassian-ide-plugin.xml
 .tmp
+jshint-log.xml

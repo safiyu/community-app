@@ -1,11 +1,14 @@
 (function(module) {
   mifosX.controllers = _.extend(module, {
 
-    RunReportsController: function(scope, routeParams, resourceFactory, location, dateFilter, API_VERSION) {
+    RunReportsController: function(scope, routeParams, resourceFactory, location, dateFilter, API_VERSION,$rootScope) {
 
       scope.isCollapsed = false; //displays options div on startup
       scope.hideTable = true; //hides the results div on startup
       scope.hidePentahoReport = true; //hides the results div on startup
+      scope.hideChart = true;
+      scope.piechart = false;
+      scope.barchart = false;
       scope.formData = {};
       scope.reportParams = new Array();
       scope.reportDateParams = new Array();
@@ -14,11 +17,25 @@
       scope.reportData.columnHeaders = [];
       scope.reportData.data = [];
       scope.baseURL="";
-
+      scope.csvData = [];
+      scope.row = [];
       scope.reportName = routeParams.name;
       scope.reportType = routeParams.type;
       scope.reportId = routeParams.reportId;
       scope.pentahoReportParameters = [];
+      scope.type="pie";
+
+      scope.highlight = function(id){
+          var i = document.getElementById(id);
+          if(i.className == 'selected-row'){
+              i.className = 'text-pointer';
+          }else{
+              i.className = 'selected-row';
+          }
+      };
+      if (scope.reportType == 'Pentaho') {
+        scope.formData.outputType = 'HTML';
+      };
 
       resourceFactory.runReportsResource.getReport({reportSource: 'FullParameterList', parameterType : true, R_reportListing: "'"+routeParams.name+"'"}, function(data){
         
@@ -73,6 +90,8 @@
       }
 
       function intializeParams (paramData, params) {
+        scope.errorStatus = undefined;
+        scope.errorDetails = [];
         params.reportSource = paramData.name;
         params.parameterType = true;
         var successFunction = getSuccuessFunction(paramData);
@@ -104,6 +123,105 @@
         return collapsed;
       };
 
+      function invalidDate(checkDate) {
+        // validates for yyyy-mm-dd returns true if invalid, false is valid
+        var dateformat = /^\d{4}(\-|\/|\.)\d{1,2}\1\d{1,2}$/;
+
+        if(!(dateformat.test(checkDate))) {
+          return true;
+        } else{
+          var dyear = checkDate.substring(0,4);
+          var dmonth = checkDate.substring(5,7) - 1;
+          var dday = checkDate.substring(8);
+
+          var newDate=new Date(dyear,dmonth ,dday);
+          return !((dday==newDate.getDate()) && (dmonth==newDate.getMonth()) && (dyear==newDate.getFullYear()));
+        }
+      }
+
+      function removeErrors() {
+        var $inputs = $(':input');
+        $inputs.each(function() {
+            $(this).removeClass("validationerror");
+        });
+      }
+
+      function parameterValidationErrors() {
+        var tmpStartDate = "";
+        var tmpEndDate = "";
+        scope.errorDetails = [];
+        for (var i in scope.reqFields)
+        {
+          var paramDetails = scope.reqFields[i];
+          
+          switch(paramDetails.displayType)
+          {
+            case "select":
+              var selectedVal = scope.formData[paramDetails.inputName];
+              if (selectedVal==undefined || selectedVal == 0)
+              {
+                var fieldId = '#' + paramDetails.inputName;
+                $(fieldId).addClass("validationerror");
+                var errorObj = new Object();
+                errorObj.field = paramDetails.inputName;
+                errorObj.code = 'error.message.report.parameter.required';
+                errorObj.args = {params:[]};
+                errorObj.args.params.push({value : paramDetails.label});
+                scope.errorDetails.push(errorObj);
+              }
+                break;
+            case "date":
+              var tmpDate = scope.formData[paramDetails.inputName];
+              if (tmpDate==undefined || !(tmpDate > ""))
+              {
+                var fieldId = '#' + paramDetails.inputName;
+                $(fieldId).addClass("validationerror");
+                var errorObj = new Object();
+                errorObj.field = paramDetails.inputName;
+                errorObj.code = 'error.message.report.parameter.required';
+                errorObj.args = {params:[]};
+                errorObj.args.params.push({value : paramDetails.label});
+                scope.errorDetails.push(errorObj);
+              }
+              if (tmpDate && invalidDate(tmpDate) == true)
+              {
+                var fieldId = '#' + paramDetails.inputName;
+                $(fieldId).addClass("validationerror");
+                var errorObj = new Object();
+                errorObj.field = paramDetails.inputName;
+                errorObj.code = 'error.message.report.invalid.value.for.parameter';
+                errorObj.args = {params:[]};
+                errorObj.args.params.push({value : paramDetails.label});
+                scope.errorDetails.push(errorObj);
+              }
+
+              if (paramDetails.variable == "startDate") tmpStartDate = tmpDate;
+              if (paramDetails.variable == "endDate") tmpEndDate = tmpDate;
+                break;
+            default:
+              var errorObj = new Object();
+              errorObj.field = paramDetails.inputName;
+              errorObj.code = 'error.message.report.parameter.invalid';
+              errorObj.args = {params:[]};
+              errorObj.args.params.push({value : paramDetails.label});
+              scope.errorDetails.push(errorObj);
+              break;
+          }
+        }
+
+        if (tmpStartDate > "" && tmpEndDate > "")
+        {
+          if (tmpStartDate > tmpEndDate)
+          {
+                var errorObj = new Object();
+                  errorObj.field = paramDetails.inputName;
+                  errorObj.code = 'error.message.report.incorrect.values.for.date.fields';
+                  errorObj.args = {params:[]};
+                  errorObj.args.params.push({value : paramDetails.label});
+                  scope.errorDetails.push(errorObj);
+          }
+        }
+      }
       function buildReportParms() {
         var paramCount = 1;
         var reportParams = "";
@@ -121,45 +239,118 @@
         }
         return reportParams;
       }
-
+        scope.xFunction = function(){
+            return function(d) {
+                return d.key;
+            };
+        };
+        scope.yFunction = function(){
+            return function(d) {
+                return d.values;
+            };
+        };
+        scope.setTypePie = function(){
+            if(scope.type=='bar'){
+                scope.type = 'pie';
+            }
+        };
+        scope.setTypeBar = function(){
+            if(scope.type=='pie'){
+                scope.type = 'bar';
+            }
+        };
+        scope.colorFunctionPie = function() {
+            return function(d, i) {
+                return colorArrayPie[i];
+            };
+        };
       scope.runReport = function (){
-        scope.isCollapsed=true;
+        //clear the previous errors
+        scope.errorDetails = [];
+        removeErrors();
+
+        //update date fields with proper dateformat
         for(var i in scope.reportDateParams) {
           if (scope.formData[scope.reportDateParams[i].inputName]) {
             scope.formData[scope.reportDateParams[i].inputName] = dateFilter(scope.formData[scope.reportDateParams[i].inputName],'yyyy-MM-dd');
           }
         }
 
-        switch(scope.reportType)
-        {
-          case "Table":
-            scope.hideTable=false;
-            scope.hidePentahoReport = true;
-            scope.formData.reportSource = scope.reportName;
-            resourceFactory.runReportsResource.getReport(scope.formData, function(data){
-              scope.reportData.columnHeaders = data.columnHeaders;
-              scope.reportData.data = data.data;
-            });
-          break;
-          
-          case "Pentaho":
+        //Custom validation for report parameters
+        parameterValidationErrors();
 
-            scope.hideTable=true;
-            scope.hidePentahoReport = false;
-            scope.baseURL = API_VERSION + "/runreports/" + encodeURIComponent(scope.reportName); 
-            scope.baseURL += "?output-type="+encodeURIComponent(scope.formData.outputType)+"&tenantIdentifier=default";
-            var inQueryParameters = buildReportParms();
-            if (inQueryParameters > "") scope.baseURL += "&" + inQueryParameters;
-          break;
-
-          default:
-              alert("System Error: Unknown Report Type: " + scope.reportType);
+        if (scope.errorDetails.length == 0) {
+          scope.isCollapsed=true;
+          switch(scope.reportType) {
+            case "Table":
+              scope.hideTable=false;
+              scope.hidePentahoReport = true;
+                scope.hideChart = true;
+              scope.formData.reportSource = scope.reportName;
+              resourceFactory.runReportsResource.getReport(scope.formData, function(data){
+                scope.reportData.columnHeaders = data.columnHeaders;
+                scope.reportData.data = data.data;
+                  for(var i in data.columnHeaders){
+                      scope.row.push(data.columnHeaders[i].columnName);
+                  }
+                  scope.csvData.push(scope.row);
+                  for(var k in data.data){
+                      scope.csvData.push(data.data[k].row);
+                  }
+              });
+            break;
+            
+            case "Pentaho":
+              scope.hideTable=true;
+              scope.hidePentahoReport = false;
+              scope.hideChart = true;
+              scope.baseURL = $rootScope.hostUrl +API_VERSION + "/runreports/" + encodeURIComponent(scope.reportName);
+              scope.baseURL += "?output-type="+encodeURIComponent(scope.formData.outputType)+"&tenantIdentifier=default";
+              var inQueryParameters = buildReportParms();
+              if (inQueryParameters > "") scope.baseURL += "&" + inQueryParameters;
+              break;
+              case "Chart":
+                  scope.hideTable = true;
+                  scope.hidePentahoReport = true;
+                  scope.hideChart = false;
+                  scope.formData.reportSource = scope.reportName;
+                  resourceFactory.runReportsResource.getReport(scope.formData, function(data){
+                      scope.reportData.columnHeaders = data.columnHeaders;
+                      scope.reportData.data = data.data;
+                      scope.chartData = [];
+                      scope.barData = [];
+                      var l = data.data.length;
+                      for(var i=0;i<l;i++){
+                          scope.row = {};
+                          scope.row.key = data.data[i].row[0];
+                          scope.row.values = data.data[i].row[1];
+                          scope.chartData.push(scope.row);
+                      }
+                      var x = {};
+                      x.key = "summary";
+                      x.values = [];
+                      for(var m=0;m<l;m++){
+                         var inner = [data.data[m].row[0],data.data[m].row[1]];
+                          x.values.push(inner);
+                      }
+                      scope.barData.push(x);
+                      console.log(scope.barData);
+                  });
+                  break;
+              default:
+              var errorObj = new Object();
+              errorObj.field = scope.reportType;
+              errorObj.code = 'error.message.report.type.is.invalid';
+              errorObj.args = {params:[]};
+              errorObj.args.params.push({value : scope.reportType});
+              scope.errorDetails.push(errorObj);
+              break;
+          }
         }
-        
       };
     }
   });
-  mifosX.ng.application.controller('RunReportsController', ['$scope', '$routeParams', 'ResourceFactory', '$location', 'dateFilter', 'API_VERSION', mifosX.controllers.RunReportsController]).run(function($log) {
+  mifosX.ng.application.controller('RunReportsController', ['$scope', '$routeParams', 'ResourceFactory', '$location', 'dateFilter', 'API_VERSION','$rootScope', mifosX.controllers.RunReportsController]).run(function($log) {
     $log.info("RunReportsController initialized");
   });
 }(mifosX.controllers || {}));
